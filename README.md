@@ -358,3 +358,4 @@ flutter test
 ## 📄 License
 
 Dự án này được phát triển phục vụ mục đích học tập trong môn **Lập Trình Đa Nền Tảng**.
+Firebase integration updated
