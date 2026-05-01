@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "562848665768",
+    "firebase_url": "https://doanmoi-911d1-default-rtdb.firebaseio.com",
+    "project_id": "doanmoi-911d1",
+    "storage_bucket": "doanmoi-911d1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:562848665768:android:17d00a909d2e91ce89b29d",
+        "android_client_info": {
+          "package_name": "com.example.matchquizapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSU7eryDUZFMWiUq4gjkLsr7QgB2N-NGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
