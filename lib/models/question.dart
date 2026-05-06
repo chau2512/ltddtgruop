@@ -4,6 +4,7 @@ class Question {
   final String operatorSymbol;
   final int correctAnswer;
   final List<int> options;
+  final String? customQuestionText; // Cho câu hỏi tùy chỉnh từ Admin
 
   Question({
     required this.numA,
@@ -11,7 +12,9 @@ class Question {
     required this.operatorSymbol,
     required this.correctAnswer,
     required this.options,
+    this.customQuestionText,
   });
 
-  String get questionText => '$numA $operatorSymbol $numB = ?';
+  /// Nếu có customQuestionText → dùng nó, nếu không → tạo từ numA/numB
+  String get questionText => customQuestionText ?? '$numA $operatorSymbol $numB = ?';
 }

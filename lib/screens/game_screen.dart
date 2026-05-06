@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../providers/game_provider.dart';
+import '../services/audio_service.dart';
 import 'result_screen.dart';
 
 class GameScreen extends StatefulWidget {
@@ -12,28 +13,92 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   int? _selectedOptionIndex;
   bool _isCorrect = false;
   bool _isProcessing = false;
+  late AnimationController _timerController;
+
+  @override
+  void initState() {
+    super.initState();
+    AudioService().playBGM();
+    _timerController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 10),
+    );
+    _timerController.addStatusListener((status) {
+      if (status == AnimationStatus.dismissed) {
+        _handleTimeOut();
+      }
+    });
+    _timerController.reverse(from: 1.0);
+  }
+
+  @override
+  void dispose() {
+    _timerController.dispose();
+    AudioService().stopBGM();
+    super.dispose();
+  }
+
+  void _handleTimeOut() async {
+    if (_isProcessing || !mounted) return;
+    
+    final game = Provider.of<GameProvider>(context, listen: false);
+    if (game.isGameOver) return;
+
+    AudioService().playWrong();
+    setState(() {
+      _isProcessing = true;
+      _selectedOptionIndex = -1; // -1 for timeout
+      _isCorrect = false;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 1000));
+    
+    game.checkAnswer(-1); // wrong answer
+    
+    if (mounted) {
+      setState(() {
+        _isProcessing = false;
+        _selectedOptionIndex = null;
+      });
+      if (!game.isGameOver) {
+        _timerController.reverse(from: 1.0);
+      }
+    }
+  }
 
   void _handleAnswer(GameProvider game, int option, int index) async {
     if (_isProcessing) return;
+    _timerController.stop();
+
+    final isCorrect = option == game.currentQuestion!.correctAnswer;
+    if (isCorrect) {
+      AudioService().playCorrect();
+    } else {
+      AudioService().playWrong();
+    }
+
     setState(() {
       _isProcessing = true;
       _selectedOptionIndex = index;
-      _isCorrect = option == game.currentQuestion!.correctAnswer;
+      _isCorrect = isCorrect;
     });
 
     await Future.delayed(const Duration(milliseconds: 1000));
 
-    game.checkAnswer(option);
+    game.checkAnswer(option, timeLeftRatio: _timerController.value);
 
     if (mounted) {
       setState(() {
         _isProcessing = false;
         _selectedOptionIndex = null;
       });
+      if (!game.isGameOver) {
+        _timerController.reverse(from: 1.0);
+      }
     }
   }
 
@@ -43,6 +108,11 @@ class _GameScreenState extends State<GameScreen> {
       builder: (context, game, child) {
         if (game.isGameOver) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            _timerController.stop();
+            AudioService().stopBGM();
+            if (game.score >= (game.maxQuestions * 10 * 0.8)) {
+              AudioService().playApplause();
+            }
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(
@@ -57,7 +127,21 @@ class _GameScreenState extends State<GameScreen> {
         }
 
         final question = game.currentQuestion;
-        if (question == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        if (game.isLoading || question == null) {
+          return Scaffold(
+            backgroundColor: Colors.orange[50],
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(color: Colors.orange),
+                  const SizedBox(height: 15),
+                  Text('Đang tải câu hỏi...', style: GoogleFonts.fredoka(color: Colors.orange, fontSize: 16)),
+                ],
+              ),
+            ),
+          );
+        }
 
         return Scaffold(
           backgroundColor: Colors.orange[50],
@@ -68,6 +152,8 @@ class _GameScreenState extends State<GameScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  _buildTimerBar(),
+                  const SizedBox(height: 20),
                   _buildMascot(game.questionCount),
                   const SizedBox(height: 10),
                   _buildQuestionCard(question.questionText, game.questionCount),
@@ -76,6 +162,28 @@ class _GameScreenState extends State<GameScreen> {
                 ],
               ),
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTimerBar() {
+    return AnimatedBuilder(
+      animation: _timerController,
+      builder: (context, child) {
+        final value = _timerController.value;
+        Color color = Colors.green;
+        if (value < 0.5) color = Colors.orange;
+        if (value < 0.25) color = Colors.red;
+
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: LinearProgressIndicator(
+            value: value,
+            backgroundColor: Colors.grey[300],
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+            minHeight: 10,
           ),
         );
       },

@@ -38,9 +38,15 @@ void main() {
 
     // Tap first answer to proceed
     await tester.tap(answerButtons.first);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 1500));
 
     // Should be on Question 2
     expect(find.textContaining('2/10'), findsOneWidget);
+
+    // Pump time to let flutter_animate entrance animations finish for Question 2
+    await tester.pump(const Duration(milliseconds: 1500));
+
+    // Unmount to dispose AnimationController and clear pending timers
+    await tester.pumpWidget(const SizedBox());
   });
 }

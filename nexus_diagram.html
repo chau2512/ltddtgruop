@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatchQuizApp - Sơ đồ Nexus</title>
+    <!-- Nhúng thư viện Mermaid.js từ CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #d84315;
+            margin-bottom: 10px;
+        }
+        p.desc {
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        .mermaid-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 1000px;
+            overflow-x: auto;
+        }
+    </style>
+    <script>
+        // Khởi tạo Mermaid
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</head>
+<body>
+
+    <h1>Sơ đồ Cấu trúc Dự án MatchQuizApp</h1>
+    <p class="desc">
+        Sơ đồ kiến trúc (Nexus Diagram) mô tả luồng hoạt động, state management và sự liên kết giữa các file/thành phần trong dự án Flutter MatchQuizApp.
+    </p>
+
+    <div class="mermaid-container">
+        <div class="mermaid">
+graph TD
+    %% Định nghĩa các Style
+    classDef entry fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef screen fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef provider fill:#dfd,stroke:#333,stroke-width:2px;
+    classDef service fill:#fbf,stroke:#333,stroke-width:2px;
+    classDef util fill:#ffd,stroke:#333,stroke-width:2px;
+    classDef model fill:#eee,stroke:#333,stroke-width:2px;
+
+    %% Entry Point
+    Main[main.dart<br>MathQuizApp & MainScreen]:::entry
+
+    %% Screens
+    subgraph UI_Layer [Giao diện - Screens]
+        GameScreen[game_screen.dart<br>GameScreen]:::screen
+        ResultScreen[result_screen.dart<br>ResultScreen]:::screen
+    end
+
+    %% State Management
+    subgraph State_Layer [Quản lý trạng thái - Providers]
+        GameProvider[game_provider.dart<br>GameProvider]:::provider
+    end
+
+    %% Business Logic & Utils
+    subgraph Logic_Layer [Tiện ích - Utils]
+        MathGen[math_generator.dart<br>MathGenerator]:::util
+    end
+
+    %% Models
+    subgraph Data_Layer [Kiểu dữ liệu - Models]
+        QuestionModel[question.dart<br>Question]:::model
+    end
+
+    %% Services
+    subgraph Service_Layer [Dịch vụ - Services]
+        DBService[database_service.dart<br>DatabaseService]:::service
+        Firebase[(Firebase Cloud Firestore)]
+    end
+
+    %% Luồng liên kết
+    Main -- Khởi tạo & Cung cấp --> GameProvider
+    Main -- Chuyển hướng --> GameScreen
+    
+    GameScreen -- "Đọc & Cập nhật điểm, câu hỏi" --> GameProvider
+    GameScreen -- "Kết thúc vòng chơi" --> ResultScreen
+    
+    ResultScreen -- "Chơi lại vòng mới" --> GameProvider
+    ResultScreen -- "Quay về trang chủ" --> Main
+    
+    GameProvider -- "Sử dụng cấu trúc dữ liệu" --> QuestionModel
+    GameProvider -- "Tạo câu hỏi theo Level" --> MathGen
+    MathGen -- "Trả về đối tượng" --> QuestionModel
+    
+    GameProvider -- "Lưu điểm khi kết thúc" --> DBService
+    DBService -- "Ghi dữ liệu (Read/Write)" --> Firebase
+        </div>
+    </div>
+
+</body>
+</html>

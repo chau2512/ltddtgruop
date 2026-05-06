@@ -41,53 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDYh0WI58_b_MXHoU47xEDQxlBjPOwh4O8',
-    appId: '1:562848665768:web:1bd748a4e6aff63289b29d',
-    messagingSenderId: '562848665768',
-    projectId: 'doanmoi-911d1',
-    authDomain: 'doanmoi-911d1.firebaseapp.com',
-    databaseURL: 'https://doanmoi-911d1-default-rtdb.firebaseio.com',
-    storageBucket: 'doanmoi-911d1.firebasestorage.app',
-    measurementId: 'G-CTGJXJ2YDX',
+    apiKey: 'AIzaSyD7xrM9lhg0hmHnMgqgndG3lHnkTVHsDrQ',
+    appId: '1:765013274908:web:f42119d13a7c601509cad9',
+    messagingSenderId: '765013274908',
+    projectId: 'matchquizapp-1a8b3',
+    authDomain: 'matchquizapp-1a8b3.firebaseapp.com',
+    storageBucket: 'matchquizapp-1a8b3.firebasestorage.app',
   );
 
+  // NOTE: Android/iOS/macOS/Windows dùng chung projectId.
+  // Nếu cần chạy trên platform khác, cần đăng ký app riêng trên Firebase Console.
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBSU7eryDUZFMWiUq4gjkLsr7QgB2N-NGU',
-    appId: '1:562848665768:android:17d00a909d2e91ce89b29d',
-    messagingSenderId: '562848665768',
-    projectId: 'doanmoi-911d1',
-    databaseURL: 'https://doanmoi-911d1-default-rtdb.firebaseio.com',
-    storageBucket: 'doanmoi-911d1.firebasestorage.app',
+    apiKey: 'AIzaSyD7xrM9lhg0hmHnMgqgndG3lHnkTVHsDrQ',
+    appId: '1:765013274908:web:f42119d13a7c601509cad9',
+    messagingSenderId: '765013274908',
+    projectId: 'matchquizapp-1a8b3',
+    storageBucket: 'matchquizapp-1a8b3.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCNpOGcvxnejuZ_iL-9eV89iC3L0gUh2fo',
-    appId: '1:562848665768:ios:68566df9aa62084789b29d',
-    messagingSenderId: '562848665768',
-    projectId: 'doanmoi-911d1',
-    databaseURL: 'https://doanmoi-911d1-default-rtdb.firebaseio.com',
-    storageBucket: 'doanmoi-911d1.firebasestorage.app',
+    apiKey: 'AIzaSyD7xrM9lhg0hmHnMgqgndG3lHnkTVHsDrQ',
+    appId: '1:765013274908:web:f42119d13a7c601509cad9',
+    messagingSenderId: '765013274908',
+    projectId: 'matchquizapp-1a8b3',
+    storageBucket: 'matchquizapp-1a8b3.firebasestorage.app',
     iosBundleId: 'com.example.matchquizapp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCNpOGcvxnejuZ_iL-9eV89iC3L0gUh2fo',
-    appId: '1:562848665768:ios:68566df9aa62084789b29d',
-    messagingSenderId: '562848665768',
-    projectId: 'doanmoi-911d1',
-    databaseURL: 'https://doanmoi-911d1-default-rtdb.firebaseio.com',
-    storageBucket: 'doanmoi-911d1.firebasestorage.app',
+    apiKey: 'AIzaSyD7xrM9lhg0hmHnMgqgndG3lHnkTVHsDrQ',
+    appId: '1:765013274908:web:f42119d13a7c601509cad9',
+    messagingSenderId: '765013274908',
+    projectId: 'matchquizapp-1a8b3',
+    storageBucket: 'matchquizapp-1a8b3.firebasestorage.app',
     iosBundleId: 'com.example.matchquizapp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDYh0WI58_b_MXHoU47xEDQxlBjPOwh4O8',
-    appId: '1:562848665768:web:108a829fb9c9410c89b29d',
-    messagingSenderId: '562848665768',
-    projectId: 'doanmoi-911d1',
-    authDomain: 'doanmoi-911d1.firebaseapp.com',
-    databaseURL: 'https://doanmoi-911d1-default-rtdb.firebaseio.com',
-    storageBucket: 'doanmoi-911d1.firebasestorage.app',
-    measurementId: 'G-5ZF5S8C3YY',
+    apiKey: 'AIzaSyD7xrM9lhg0hmHnMgqgndG3lHnkTVHsDrQ',
+    appId: '1:765013274908:web:f42119d13a7c601509cad9',
+    messagingSenderId: '765013274908',
+    projectId: 'matchquizapp-1a8b3',
+    authDomain: 'matchquizapp-1a8b3.firebaseapp.com',
+    storageBucket: 'matchquizapp-1a8b3.firebasestorage.app',
   );
 }
