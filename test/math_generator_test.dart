@@ -40,5 +40,40 @@ void main() {
         expect(q.numA / q.numB, q.correctAnswer);
       }
     });
+
+    test('Level 4 generates mixed operations (a + b×c or a - b×c)', () {
+      for (int i = 0; i < 50; i++) {
+        final q = MathGenerator.generateQuestion(4);
+
+        // Phải có customQuestionText (dạng hỗn hợp)
+        expect(q.customQuestionText, isNotNull);
+        expect(q.questionText, contains('×'));
+
+        // Đáp án đúng phải dương
+        expect(q.correctAnswer, greaterThan(0));
+
+        // Phải có đúng 4 đáp án và không trùng
+        expect(q.options.length, 4);
+        expect(q.options.toSet().length, 4, reason: 'Options must be unique');
+
+        // Đáp án đúng phải nằm trong danh sách lựa chọn
+        expect(q.options.contains(q.correctAnswer), isTrue);
+
+        // Kiểm tra dạng câu hỏi khớp với đáp án
+        final text = q.questionText; // VD: "5 + 3 × 4 = ?"
+        final parts = text.replaceAll(' = ?', '').split(' ');
+        if (parts[1] == '+') {
+          final a = int.parse(parts[0]);
+          final b = int.parse(parts[2]);
+          final c = int.parse(parts[4]);
+          expect(a + b * c, q.correctAnswer);
+        } else if (parts[1] == '-') {
+          final a = int.parse(parts[0]);
+          final b = int.parse(parts[2]);
+          final c = int.parse(parts[4]);
+          expect(a - b * c, q.correctAnswer);
+        }
+      }
+    });
   });
 }
