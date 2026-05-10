@@ -6,6 +6,7 @@ import '../../providers/admin_provider.dart';
 import '../../models/custom_question.dart';
 import '../../services/audio_service.dart';
 import 'question_form_screen.dart';
+import 'ai_chat_tab.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -22,7 +23,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -75,6 +79,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               tabs: const [
                 Tab(icon: Icon(Icons.quiz_rounded), text: 'Câu hỏi'),
                 Tab(icon: Icon(Icons.volume_up_rounded), text: 'Âm thanh'),
+                Tab(icon: Icon(Icons.smart_toy_rounded), text: 'Trợ lý AI'),
               ],
             ),
           ),
@@ -83,6 +88,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             children: [
               _buildQuestionsTab(admin),
               _buildAudioTab(admin),
+              const AiChatTab(),
             ],
           ),
           floatingActionButton: _tabController.index == 0
@@ -135,21 +141,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       color: const Color(0xFF16213E),
-      child: Row(
-        children: [
-          Text(
-            'Lọc theo:',
-            style: GoogleFonts.nunito(color: Colors.white54, fontSize: 14),
-          ),
-          const SizedBox(width: 10),
-          _buildFilterChip('Tất cả', null, admin),
-          const SizedBox(width: 8),
-          _buildFilterChip('Cấp 1', 1, admin),
-          const SizedBox(width: 8),
-          _buildFilterChip('Cấp 2', 2, admin),
-          const SizedBox(width: 8),
-          _buildFilterChip('Cấp 3', 3, admin),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            Text(
+              'Lọc theo:',
+              style: GoogleFonts.nunito(color: Colors.white54, fontSize: 14),
+            ),
+            const SizedBox(width: 10),
+            _buildFilterChip('Tất cả', null, admin),
+            const SizedBox(width: 8),
+            _buildFilterChip('Cấp 1', 1, admin),
+            const SizedBox(width: 8),
+            _buildFilterChip('Cấp 2', 2, admin),
+            const SizedBox(width: 8),
+            _buildFilterChip('Cấp 3', 3, admin),
+            const SizedBox(width: 8),
+            _buildFilterChip('Cấp 4', 4, admin),
+          ],
+        ),
       ),
     );
   }
@@ -209,6 +220,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
       1: Colors.lightGreen,
       2: Colors.orange,
       3: Colors.deepOrange,
+      4: Colors.purpleAccent,
     };
     final color = levelColors[question.level] ?? Colors.grey;
 

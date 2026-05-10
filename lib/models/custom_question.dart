@@ -5,7 +5,7 @@ class CustomQuestion {
   final String questionText;
   final int correctAnswer;
   final List<int> options; // 4 đáp án (bao gồm đáp án đúng)
-  final int level; // 1, 2, hoặc 3
+  final int level; // 1, 2, 3, hoặc 4
   final bool isActive;
   final Timestamp? createdAt;
 

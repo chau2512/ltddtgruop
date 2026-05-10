@@ -58,6 +58,12 @@ void main() {
   });
 
   testWidgets('MainScreen hiển thị đúng các level button', (WidgetTester tester) async {
+    // Đặt kích thước màn hình ảo lớn để tránh overflow
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(_buildTestApp());
     // Pump để UserProvider.loadProfile() hoàn tất
     await tester.pump();
@@ -70,6 +76,9 @@ void main() {
     expect(find.widgetWithText(ElevatedButton, 'Cấp 1'), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, 'Cấp 2'), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, 'Cấp 3'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, 'Cấp 4'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
   });
 
   testWidgets('Tap Cấp 1 → GameScreen hiển thị câu hỏi đầu', (WidgetTester tester) async {

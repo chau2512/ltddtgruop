@@ -307,17 +307,19 @@ class _QuestionFormScreenState extends State<QuestionFormScreen> {
 
   Widget _buildLevelSelector() {
     return Row(
-      children: [1, 2, 3].map((level) {
+      children: [1, 2, 3, 4].map((level) {
         final isSelected = _selectedLevel == level;
         final colors = {
           1: Colors.lightGreen,
           2: Colors.orange,
           3: Colors.deepOrange,
+          4: Colors.purpleAccent,
         };
         final labels = {
           1: 'Cấp 1\n(+,- đến 10)',
           2: 'Cấp 2\n(+,- đến 100)',
           3: 'Cấp 3\n(Nhân/Chia)',
+          4: 'Cấp 4\n(Hỗn hợp)',
         };
         final color = colors[level]!;
 
@@ -326,8 +328,8 @@ class _QuestionFormScreenState extends State<QuestionFormScreen> {
             onTap: () => setState(() => _selectedLevel = level),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.symmetric(horizontal: 5),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
                 color: isSelected ? color.withOpacity(0.2) : const Color(0xFF16213E),
                 borderRadius: BorderRadius.circular(14),
@@ -343,9 +345,11 @@ class _QuestionFormScreenState extends State<QuestionFormScreen> {
                         ? Icons.star_border_rounded
                         : level == 2
                             ? Icons.star_half_rounded
-                            : Icons.star_rounded,
+                            : level == 3
+                                ? Icons.star_rounded
+                                : Icons.workspace_premium_rounded,
                     color: isSelected ? color : Colors.white30,
-                    size: 28,
+                    size: 24,
                   ),
                   const SizedBox(height: 6),
                   Text(

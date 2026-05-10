@@ -16,33 +16,38 @@ import 'services/database_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  // Seed dữ liệu ban đầu (chỉ tạo nếu chưa có)
-  DatabaseService().seedInitialData();
-  
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => GameProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => AdminProvider()),
-      ],
-      child: const MathQuizApp(),
-    ),
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const MainApp());
 }
 
-class MathQuizApp extends StatelessWidget {
-  const MathQuizApp({super.key});
+class MainApp extends StatelessWidget {
+  final DatabaseService? databaseService;
+  final ThemeData? themeData;
+  const MainApp({super.key, this.databaseService, this.themeData});
+
+  @override
+  Widget build(BuildContext context) {
+    final db = databaseService ?? DatabaseService();
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => GameProvider(databaseService: db)),
+        ChangeNotifierProvider(create: (_) => AdminProvider(databaseService: db)),
+      ],
+      child: MyApp(themeData: themeData),
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  final ThemeData? themeData;
+  const MyApp({super.key, this.themeData});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Math Quiz Cho Bé',
-      theme: ThemeData(
+      theme: themeData ?? ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         textTheme: GoogleFonts.nunitoTextTheme(),
         useMaterial3: true,

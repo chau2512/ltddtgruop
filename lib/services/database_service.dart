@@ -114,13 +114,25 @@ class DatabaseService {
       Query query = _db.collection('custom_questions');
       if (level != null) {
         query = query.where('level', isEqualTo: level);
+      } else {
+        // Chỉ order by bằng Firestore khi không có where để tránh lỗi thiếu composite index
+        query = query.orderBy('createdAt', descending: true);
       }
-      query = query.orderBy('createdAt', descending: true);
 
       final snapshot = await query.get();
-      return snapshot.docs
+      var questions = snapshot.docs
           .map((doc) => CustomQuestion.fromFirestore(doc))
           .toList();
+          
+      if (level != null) {
+        // Sort locally
+        questions.sort((a, b) {
+          final timeA = a.createdAt?.toDate() ?? DateTime.now();
+          final timeB = b.createdAt?.toDate() ?? DateTime.now();
+          return timeB.compareTo(timeA); // descending
+        });
+      }
+      return questions;
     } catch (e) {
       debugPrint('Lỗi lấy danh sách câu hỏi: $e');
       return [];

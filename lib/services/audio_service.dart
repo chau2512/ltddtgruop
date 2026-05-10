@@ -8,8 +8,19 @@ class AudioService {
   factory AudioService() => _instance;
   AudioService._internal();
 
-  final AudioPlayer _sfxPlayer = AudioPlayer();
-  final AudioPlayer _bgmPlayer = AudioPlayer();
+  AudioPlayer? _sfxPlayerInstance;
+  AudioPlayer? _bgmPlayerInstance;
+
+  AudioPlayer get _sfxPlayer {
+    _sfxPlayerInstance ??= AudioPlayer();
+    return _sfxPlayerInstance!;
+  }
+
+  AudioPlayer get _bgmPlayer {
+    _bgmPlayerInstance ??= AudioPlayer();
+    return _bgmPlayerInstance!;
+  }
+
   final Random _random = Random();
 
   bool _isMuted = false;
@@ -26,6 +37,7 @@ class AudioService {
   double get sfxVolume => _sfxVolume;
 
   Future<void> init() async {
+    if (isTestMode) return;
     _bgmPlayer.setReleaseMode(ReleaseMode.loop);
     // Tải cài đặt âm thanh từ Firestore
     await loadSettings();
@@ -33,6 +45,7 @@ class AudioService {
 
   /// Tải cài đặt âm thanh từ Firestore
   Future<void> loadSettings() async {
+    if (isTestMode) return;
     try {
       final settings = await DatabaseService().getAudioSettings();
       _bgmEnabled = settings['bgmEnabled'] ?? true;
@@ -59,6 +72,8 @@ class AudioService {
     _bgmVolume = bgmVolume;
     _sfxVolume = sfxVolume;
 
+    if (isTestMode) return;
+
     _bgmPlayer.setVolume(_bgmVolume);
     _sfxPlayer.setVolume(_sfxVolume);
 
@@ -70,6 +85,8 @@ class AudioService {
 
   void toggleMute() {
     _isMuted = !_isMuted;
+    if (isTestMode) return;
+    
     if (_isMuted) {
       _bgmPlayer.pause();
     } else {
@@ -77,8 +94,10 @@ class AudioService {
     }
   }
 
+  static bool isTestMode = false;
+
   Future<void> playBGM() async {
-    if (_isMuted || !_bgmEnabled) return;
+    if (isTestMode || _isMuted || !_bgmEnabled) return;
     try {
       await _bgmPlayer.setVolume(_bgmVolume);
       await _bgmPlayer.play(AssetSource('audio/bgm.mp3'));
@@ -88,11 +107,12 @@ class AudioService {
   }
 
   Future<void> stopBGM() async {
+    if (isTestMode) return;
     await _bgmPlayer.stop();
   }
 
   Future<void> playCorrect() async {
-    if (_isMuted || !_sfxEnabled) return;
+    if (isTestMode || _isMuted || !_sfxEnabled) return;
     try {
       await _sfxPlayer.setVolume(_sfxVolume);
       int idx = _random.nextInt(3) + 1; // Random 1, 2, or 3
@@ -103,7 +123,7 @@ class AudioService {
   }
 
   Future<void> playWrong() async {
-    if (_isMuted || !_sfxEnabled) return;
+    if (isTestMode || _isMuted || !_sfxEnabled) return;
     try {
       await _sfxPlayer.setVolume(_sfxVolume);
       int idx = _random.nextInt(4) + 1; // Random 1, 2, 3 or 4
@@ -114,7 +134,7 @@ class AudioService {
   }
 
   Future<void> playApplause() async {
-    if (_isMuted || !_sfxEnabled) return;
+    if (isTestMode || _isMuted || !_sfxEnabled) return;
     try {
       await _sfxPlayer.setVolume(_sfxVolume);
       await _sfxPlayer.play(AssetSource('audio/applause.mp3'));

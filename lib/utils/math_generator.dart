@@ -77,30 +77,74 @@ class MathGenerator {
   /// Dạng 1: a + b × c = ?
   /// Dạng 2: a - b × c = ? (đảm bảo kết quả dương)
   static Question _generateMixed() {
-    final bool isAddition = _random.nextBool();
-
-    // b, c nhỏ để tránh số quá lớn (2–6 × 2–6 = 4–36)
-    int b = _random.nextInt(5) + 2; // 2..6
-    int c = _random.nextInt(5) + 2; // 2..6
-    int bc = b * c; // tích b×c, tối đa 36
-
-    int a;
-    int answer;
+    int type = _random.nextInt(4); // Chọn 1 trong 4 dạng
+    
+    int a, b, c, answer;
     String questionText;
 
-    if (isAddition) {
-      // a + b×c — a từ 1..20
-      a = _random.nextInt(20) + 1;
-      answer = a + bc;
-      questionText = '$a + $b × $c = ?';
+    if (type == 0) {
+      // Dạng 0: a ± b × c
+      bool isAddition = _random.nextBool();
+      b = _random.nextInt(5) + 2; // 2..6
+      c = _random.nextInt(5) + 2; // 2..6
+      int bc = b * c;
+      if (isAddition) {
+        a = _random.nextInt(20) + 1;
+        answer = a + bc;
+        questionText = '$a + $b × $c = ?';
+      } else {
+        a = bc + _random.nextInt(20) + 1; 
+        answer = a - bc;
+        questionText = '$a - $b × $c = ?';
+      }
+    } else if (type == 1) {
+      // Dạng 1: a × b ± c
+      bool isAddition = _random.nextBool();
+      a = _random.nextInt(5) + 2; // 2..6
+      b = _random.nextInt(5) + 2; // 2..6
+      int ab = a * b;
+      if (isAddition) {
+        c = _random.nextInt(20) + 1;
+        answer = ab + c;
+        questionText = '$a × $b + $c = ?';
+      } else {
+        c = _random.nextInt(ab) + 1; // Đảm bảo c < a*b để kết quả dương
+        answer = ab - c;
+        questionText = '$a × $b - $c = ?';
+      }
+    } else if (type == 2) {
+      // Dạng 2: a ± b ÷ c
+      bool isAddition = _random.nextBool();
+      c = _random.nextInt(8) + 2; // Số chia: 2..9
+      int k = _random.nextInt(8) + 2; // Thương: 2..9
+      b = c * k; // Số bị chia
+      if (isAddition) {
+        a = _random.nextInt(20) + 1;
+        answer = a + k;
+        questionText = '$a + $b ÷ $c = ?';
+      } else {
+        a = k + _random.nextInt(20) + 1; // a > k để kết quả dương
+        answer = a - k;
+        questionText = '$a - $b ÷ $c = ?';
+      }
     } else {
-      // a - b×c — a phải > bc để kết quả dương
-      a = bc + _random.nextInt(20) + 1; // a = bc + 1..20
-      answer = a - bc;
-      questionText = '$a - $b × $c = ?';
+      // Dạng 3: a ÷ b ± c
+      bool isAddition = _random.nextBool();
+      b = _random.nextInt(8) + 2; // Số chia: 2..9
+      int k = _random.nextInt(8) + 2; // Thương: 2..9
+      a = b * k; // Số bị chia
+      if (isAddition) {
+        c = _random.nextInt(20) + 1;
+        answer = k + c;
+        questionText = '$a ÷ $b + $c = ?';
+      } else {
+        c = _random.nextInt(k) + 1; // c < k để kết quả dương
+        answer = k - c;
+        questionText = '$a ÷ $b - $c = ?';
+      }
     }
 
-    // Tạo 3 đáp án sai gần đáp án đúng (offset ±1..8)
+    // Tạo đáp án nhiễu
     List<int> options = [answer];
     while (options.length < 4) {
       int offset = _random.nextInt(8) + 1; // 1..8
@@ -113,12 +157,12 @@ class MathGenerator {
     options.shuffle(_random);
 
     return Question(
-      numA: a,
-      numB: b,
-      operatorSymbol: 'x',
+      numA: 0,
+      numB: 0,
+      operatorSymbol: 'mix',
       correctAnswer: answer,
       options: options,
-      customQuestionText: questionText, // Hiển thị đúng dạng hỗn hợp
+      customQuestionText: questionText,
     );
   }
 }

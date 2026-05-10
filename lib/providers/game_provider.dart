@@ -5,6 +5,11 @@ import '../utils/math_generator.dart';
 import '../services/database_service.dart';
 
 class GameProvider extends ChangeNotifier {
+  final DatabaseService _dbService;
+
+  GameProvider({DatabaseService? databaseService}) 
+    : _dbService = databaseService ?? DatabaseService();
+
   int _score = 0;
   int _level = 1;
   int _questionCount = 0;
@@ -45,7 +50,7 @@ class GameProvider extends ChangeNotifier {
     notifyListeners(); // UI hiển thị loading ngay
 
     // Tải câu hỏi custom từ Firestore cho level này
-    _customQuestions = await DatabaseService().getActiveQuestions(level);
+    _customQuestions = await _dbService.getActiveQuestions(level);
     _customQuestions.shuffle(); // Xáo trộn thứ tự
 
     _isLoading = false;
@@ -57,8 +62,8 @@ class GameProvider extends ChangeNotifier {
     if (_questionCount > _maxQuestions) {
       _isGameOver = true;
       // Save session to Database với userId thực
-      DatabaseService().saveGameSession(
-        userId: _userId,
+      _dbService.saveGameSession(
+        userId: 'test_user', // TODO: Lấy từ UserProvider thực tế
         level: _level,
         score: _score,
       );

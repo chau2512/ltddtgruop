@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import '../models/custom_question.dart';
 import '../services/database_service.dart';
+import '../services/ai_service.dart';
 
 class AdminProvider extends ChangeNotifier {
   bool _isAdmin = false;
   bool _isLoading = false;
   List<CustomQuestion> _questions = [];
   String? _errorMessage;
+  int? _currentFilterLevel;
+
+  // AI 
+  final AIService _aiService = AIService();
+  bool _aiIsLoading = false;
 
   // Audio settings
   bool _bgmEnabled = true;
@@ -18,12 +24,52 @@ class AdminProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   List<CustomQuestion> get questions => _questions;
   String? get errorMessage => _errorMessage;
+  int? get currentFilterLevel => _currentFilterLevel;
   bool get bgmEnabled => _bgmEnabled;
   bool get sfxEnabled => _sfxEnabled;
   double get bgmVolume => _bgmVolume;
   double get sfxVolume => _sfxVolume;
 
-  final DatabaseService _db = DatabaseService();
+  final DatabaseService _db;
+  
+  AdminProvider({DatabaseService? databaseService}) 
+    : _db = databaseService ?? DatabaseService();
+
+  // =============================================
+  // AI INTEGRATION
+  // =============================================
+
+  AIService get aiService => _aiService;
+  bool get aiIsLoading => _aiIsLoading;
+
+  void setAiApiKey(String key) {
+    _aiService.setApiKey(key);
+    notifyListeners();
+  }
+
+  void clearAiChat() {
+    _aiService.clearChat();
+    notifyListeners();
+  }
+
+  Future<void> sendAiMessage(String text) async {
+    _aiIsLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _aiService.sendMessage(text, this);
+    } catch (e) {
+      _errorMessage = e.toString();
+      _aiService.messages.add({
+        "role": "assistant",
+        "content": "❌ **Lỗi kết nối:** $e\n\nVui lòng kiểm tra lại API Key hoặc mạng của bạn."
+      });
+    } finally {
+      _aiIsLoading = false;
+      notifyListeners();
+    }
+  }
 
   // =============================================
   // ADMIN AUTH
@@ -40,7 +86,7 @@ class AdminProvider extends ChangeNotifier {
     _isLoading = false;
     if (success) {
       _isAdmin = true;
-      await loadQuestions();
+      await loadQuestions(level: null);
       await loadAudioSettings();
     } else {
       _errorMessage = 'Mã PIN không đúng!';
@@ -54,6 +100,7 @@ class AdminProvider extends ChangeNotifier {
     _isAdmin = false;
     _questions = [];
     _errorMessage = null;
+    _currentFilterLevel = null;
     notifyListeners();
   }
 
@@ -72,11 +119,15 @@ class AdminProvider extends ChangeNotifier {
   // =============================================
 
   /// Tải danh sách câu hỏi
-  Future<void> loadQuestions({int? level}) async {
+  Future<void> loadQuestions({int? level, bool retainFilter = false}) async {
+    if (!retainFilter) {
+      _currentFilterLevel = level;
+    }
+    
     _isLoading = true;
     notifyListeners();
 
-    _questions = await _db.getCustomQuestions(level: level);
+    _questions = await _db.getCustomQuestions(level: _currentFilterLevel);
 
     _isLoading = false;
     notifyListeners();
@@ -91,7 +142,7 @@ class AdminProvider extends ChangeNotifier {
     final success = id != null;
 
     if (success) {
-      await loadQuestions();
+      await loadQuestions(retainFilter: true);
     } else {
       _errorMessage = 'Không thể thêm câu hỏi!';
     }
@@ -109,7 +160,7 @@ class AdminProvider extends ChangeNotifier {
     final success = await _db.updateCustomQuestion(id, question);
 
     if (success) {
-      await loadQuestions();
+      await loadQuestions(retainFilter: true);
     } else {
       _errorMessage = 'Không thể cập nhật câu hỏi!';
     }
@@ -127,7 +178,7 @@ class AdminProvider extends ChangeNotifier {
     final success = await _db.deleteCustomQuestion(id);
 
     if (success) {
-      await loadQuestions();
+      await loadQuestions(retainFilter: true);
     } else {
       _errorMessage = 'Không thể xóa câu hỏi!';
     }

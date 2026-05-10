@@ -41,37 +41,78 @@ void main() {
       }
     });
 
-    test('Level 4 generates mixed operations (a + b×c or a - b×c)', () {
-      for (int i = 0; i < 50; i++) {
+    test('Level 4 generates mixed operations (+, -, ×, ÷)', () {
+      for (int i = 0; i < 200; i++) {
         final q = MathGenerator.generateQuestion(4);
 
         // Phải có customQuestionText (dạng hỗn hợp)
         expect(q.customQuestionText, isNotNull);
-        expect(q.questionText, contains('×'));
 
-        // Đáp án đúng phải dương
-        expect(q.correctAnswer, greaterThan(0));
+        // Phải có 1 phép toán ưu tiên (× hoặc ÷) và 1 phép toán thường (+ hoặc -)
+        final text = q.questionText;
+        expect(text.contains('×') || text.contains('÷'), isTrue);
+        expect(text.contains('+') || text.contains('-'), isTrue);
+
+        // Đáp án đúng phải dương (hoặc bằng 0)
+        expect(q.correctAnswer, greaterThanOrEqualTo(0));
 
         // Phải có đúng 4 đáp án và không trùng
         expect(q.options.length, 4);
         expect(q.options.toSet().length, 4, reason: 'Options must be unique');
-
-        // Đáp án đúng phải nằm trong danh sách lựa chọn
         expect(q.options.contains(q.correctAnswer), isTrue);
 
-        // Kiểm tra dạng câu hỏi khớp với đáp án
-        final text = q.questionText; // VD: "5 + 3 × 4 = ?"
+        // Parse biểu thức (VD: "5 + 3 × 4 = ?")
         final parts = text.replaceAll(' = ?', '').split(' ');
-        if (parts[1] == '+') {
-          final a = int.parse(parts[0]);
-          final b = int.parse(parts[2]);
-          final c = int.parse(parts[4]);
-          expect(a + b * c, q.correctAnswer);
-        } else if (parts[1] == '-') {
-          final a = int.parse(parts[0]);
-          final b = int.parse(parts[2]);
-          final c = int.parse(parts[4]);
-          expect(a - b * c, q.correctAnswer);
+        expect(parts.length, 5); // num1 op1 num2 op2 num3
+
+        final num1 = int.parse(parts[0]);
+        final op1 = parts[1];
+        final num2 = int.parse(parts[2]);
+        final op2 = parts[3];
+        final num3 = int.parse(parts[4]);
+
+        int calculatedResult = 0;
+
+        // Xử lý ưu tiên (Nhân chia trước, cộng trừ sau)
+        if (op1 == '×') {
+          calculatedResult = num1 * num2;
+          if (op2 == '+') calculatedResult += num3;
+          if (op2 == '-') calculatedResult -= num3;
+        } else if (op1 == '÷') {
+          expect(num1 % num2, 0, reason: 'Phép chia phải tròn');
+          calculatedResult = num1 ~/ num2;
+          if (op2 == '+') calculatedResult += num3;
+          if (op2 == '-') calculatedResult -= num3;
+        } else if (op2 == '×') {
+          final temp = num2 * num3;
+          if (op1 == '+') calculatedResult = num1 + temp;
+          if (op1 == '-') calculatedResult = num1 - temp;
+        } else if (op2 == '÷') {
+          expect(num2 % num3, 0, reason: 'Phép chia phải tròn');
+          final temp = num2 ~/ num3;
+          if (op1 == '+') calculatedResult = num1 + temp;
+          if (op1 == '-') calculatedResult = num1 - temp;
+        }
+
+        expect(q.correctAnswer, calculatedResult, reason: 'Kết quả tính toán không khớp với correctAnswer cho biểu thức $text');
+      }
+    });
+
+    test('No negative numbers in any level', () {
+      for (int level = 1; level <= 4; level++) {
+        for (int i = 0; i < 100; i++) {
+          final q = MathGenerator.generateQuestion(level);
+          expect(q.correctAnswer, greaterThanOrEqualTo(0), reason: 'Level $level: correctAnswer must be >= 0');
+          expect(q.options.every((o) => o >= 0), isTrue, reason: 'Level $level: all options must be >= 0');
+        }
+      }
+    });
+
+    test('Options are always unique across all levels (100 iterations)', () {
+      for (int level = 1; level <= 4; level++) {
+        for (int i = 0; i < 100; i++) {
+          final q = MathGenerator.generateQuestion(level);
+          expect(q.options.toSet().length, 4, reason: 'Level $level: options must be unique');
         }
       }
     });
