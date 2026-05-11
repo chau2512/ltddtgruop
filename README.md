@@ -349,9 +349,9 @@ flutter test
 
 | STT | Họ và Tên | MSSV | Vai trò |
 |-----|-----------|------|---------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
+| 1 | Trần Hữu Hoàng Châu | 23IT027 | Trưởng nhóm |
+| 2 | Khổng Thị Lệ Ging | 23IT.B027 | Thành viên |
+| 3 | Nguyễn Thị Hồng | 23IT.B039 | Thành viên |
 
 ---
 
